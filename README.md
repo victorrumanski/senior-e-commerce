@@ -229,15 +229,110 @@ kubectl logs -f deployment/auth-service -n auth-service
 
 ## 🌐 Accessing Services
 
-### List all running services
+### Option 1: Local Ingress (Recommended)
+
+k3s comes with **Traefik** installed. You can create Ingress rules to route traffic via domain names.
+
+**Setup (one-time):**
 
 ```bash
-kubectl get pods -A
+# Create Ingress for local services
+kubectl apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: local-ingress
+  namespace: ingress-traefik
+spec:
+  rules:
+  - host: localtest.me
+    http:
+      paths:
+      - path: /checkout
+        pathType: Prefix
+        backend:
+          service:
+            name: checkout-service
+            port:
+              number: 8080
+      - path: /catalog
+        pathType: Prefix
+        backend:
+          service:
+            name: catalog-service
+            port:
+              number: 8080
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 8080
+      - path: /api/health
+        pathType: Prefix
+        backend:
+          service:
+            name: checkout-service
+            port:
+              number: 8080
+  - host: keycloak.localtest.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 80
+  - host: prometheus.localtest.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-operated
+            port:
+              number: 9090
+  - host: grafana.localtest.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-prometheus-stack-grafana
+            port:
+              number: 80
+EOF
 ```
 
-### Port Forward to Services
+**Add to `/etc/hosts`** (or skip if localtest.me works for you):
 
 ```bash
+echo "127.0.0.1 localtest.me keycloak.localtest.me prometheus.localtest.me grafana.localtest.me" | sudo tee -a /etc/hosts
+```
+
+**Access services directly:**
+
+Then open in browser:
+- Checkout: http://localtest.me/checkout/orders
+- Catalog: http://localtest.me/catalog/
+- Auth: http://localtest.me/auth/
+- Keycloak: http://keycloak.localtest.me/
+- Prometheus: http://prometheus.localtest.me/
+- Grafana: http://grafana.localtest.me/ (login: admin/prom-operator)
+
+### Option 2: Port Forwarding (If Ingress doesn't work)
+
+If Ingress fails, fall back to port-forwarding:
+
+```bash
+# List all running services
+kubectl get pods -A
+
 # Checkout Service (REST API)
 kubectl port-forward svc/checkout-service 8081:8080 -n checkout-service
 
@@ -259,12 +354,6 @@ kubectl port-forward svc/prometheus-operated 9090:9090 -n observability
 kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n observability
 ```
 
-Then open in browser:
-- Checkout: http://localhost:8081/
-- Keycloak: http://localhost:8888/
-- Prometheus: http://localhost:9090/
-- Grafana: http://localhost:3000/ (login: admin/prom-operator)
-
 ---
 
 ## 📊 Understanding the Event Flow
@@ -272,7 +361,7 @@ Then open in browser:
 ### Place an Order
 
 ```bash
-curl -X POST http://localhost:8081/orders \
+curl -X POST http://localtest.me/checkout/orders \
   -H "Content-Type: application/json" \
   -d '{
     "userId": "user-123",
@@ -280,6 +369,13 @@ curl -X POST http://localhost:8081/orders \
     "shippingAddress": "123 Main St",
     "paymentMethodToken": "pm_123"
   }'
+```
+
+Or if using port-forward:
+```bash
+curl -X POST http://localhost:8081/orders \
+  -H "Content-Type: application/json" \
+  -d '{...}'
 ```
 
 ### What Happens
