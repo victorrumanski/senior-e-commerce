@@ -1,0 +1,21 @@
+common-microservice:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/victorrumanski/auth-service
+    tag: "latest"
+  service:
+    port: 80
+    targetPort: 8080
+  env:
+    # auth-service doesn't need DB/Kafka, but the library chart expects them
+    dbHost: ""
+    dbName: ""
+    dbUser: ""
+    dbSchema: ""
+    kafkaHost: ""
+  probes:
+    enabled: true
+  ingress:
+    enabled: true
+    className: "traefik"
+    host: "auth.localtest.me"

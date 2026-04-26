@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-app-of-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # GitOps repo (this repository)
+    # Update this URL after you publish your repo.
+    repoURL: https://github.com/victorrumanski/senior-e-commerce.git
+    targetRevision: HEAD
+    path: argocd-apps
+    directory:
+      recurse: true
+      include: '{infra-*.yaml,observability-*.yaml}'
+      exclude: '{infra-app-of-apps.yaml,my-spring-service.yaml}'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: 15.5.38
+    helm:
+      values: |
+        auth:
+          username: ecomm
+          password: ecomm-password
+          database: ecomm
+        primary:
+          initdb:
+            scripts:
+              001-schemas.sql: |
+                CREATE SCHEMA IF NOT EXISTS auth;
+                CREATE SCHEMA IF NOT EXISTS catalog;
+                CREATE SCHEMA IF NOT EXISTS checkout;
+                CREATE SCHEMA IF NOT EXISTS payments;
+                CREATE SCHEMA IF NOT EXISTS inventory;
+                CREATE SCHEMA IF NOT EXISTS shipping;
+                CREATE SCHEMA IF NOT EXISTS delivery;
+                CREATE SCHEMA IF NOT EXISTS notifications;
+                CREATE SCHEMA IF NOT EXISTS analytics;
+          persistence:
+            enabled: true
+            size: 2Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: checkout-service
+description: Checkout microservice
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  - name: common-microservice
+    repository: "oci://ghcr.io/victorrumanski"
+    version: 1.0.2
+    import-values:
+      - data

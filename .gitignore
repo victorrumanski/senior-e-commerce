@@ -1,0 +1,22 @@
+# Maven
+target/
+*.jar
+*.jar.original
+.m2/
+dependency-reduced-pom.xml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+*.class
+*.log
+
+# Runtime
+.env
+.env.local

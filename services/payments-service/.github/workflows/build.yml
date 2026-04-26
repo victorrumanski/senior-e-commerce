@@ -1,0 +1,23 @@
+name: Payments Service CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "services/payments-service/**"
+      - ".github/workflows/reusable-service-build.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "services/payments-service/**"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-service-build.yml
+    with:
+      service_path: services/payments-service
+      service_name: payments-service

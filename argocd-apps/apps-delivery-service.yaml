@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: delivery-service
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/victorrumanski/senior-e-commerce.git
+    targetRevision: HEAD
+    path: services/delivery-service/charts/delivery-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
