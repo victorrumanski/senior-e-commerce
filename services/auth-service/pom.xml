@@ -12,7 +12,7 @@
 
   <groupId>com.senior.ecomm</groupId>
   <artifactId>auth-service</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <name>auth-service</name>
   <description>Auth service (resource server; Keycloak integration placeholder)</description>
 
