@@ -11,6 +11,48 @@ spec:
     targetRevision: 32.4.3
     helm:
       values: |
+        # Bitnami moved their free public images out of docker.io/bitnami in
+        # August 2025. The legacy free images are still mirrored under
+        # docker.io/bitnamilegacy, so we override every image the chart pulls
+        # to use that registry/repo path.
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/kafka
+        provisioning:
+          enabled: true
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/kafka
+          topics:
+            - name: order-events
+              partitions: 1
+              replicationFactor: 1
+            - name: payment-events
+              partitions: 1
+              replicationFactor: 1
+            - name: shipping-events
+              partitions: 1
+              replicationFactor: 1
+            - name: delivery-events
+              partitions: 1
+              replicationFactor: 1
+        kubectl:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/kubectl
+        volumePermissions:
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/os-shell
+        metrics:
+          kafka:
+            image:
+              registry: docker.io
+              repository: bitnamilegacy/kafka-exporter
+          jmx:
+            image:
+              registry: docker.io
+              repository: bitnamilegacy/jmx-exporter
         kraft:
           enabled: true
         zookeeper:
@@ -28,21 +70,6 @@ spec:
             protocol: PLAINTEXT
         auth:
           enabled: false
-        provisioning:
-          enabled: true
-          topics:
-            - name: order-events
-              partitions: 1
-              replicationFactor: 1
-            - name: payment-events
-              partitions: 1
-              replicationFactor: 1
-            - name: shipping-events
-              partitions: 1
-              replicationFactor: 1
-            - name: delivery-events
-              partitions: 1
-              replicationFactor: 1
   destination:
     server: https://kubernetes.default.svc
     namespace: data
