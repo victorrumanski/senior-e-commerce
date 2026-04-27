@@ -1,0 +1,24 @@
+name: Auth Service CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "services/auth-service/**"
+      - ".github/workflows/reusable-service-build.yml"
+      - ".github/workflows/auth-service-build.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "services/auth-service/**"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-service-build.yml
+    with:
+      service_path: services/auth-service
+      service_name: auth-service

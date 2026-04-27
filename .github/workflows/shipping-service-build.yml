@@ -1,0 +1,24 @@
+name: Shipping Service CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "services/shipping-service/**"
+      - ".github/workflows/reusable-service-build.yml"
+      - ".github/workflows/shipping-service-build.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "services/shipping-service/**"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-service-build.yml
+    with:
+      service_path: services/shipping-service
+      service_name: shipping-service
